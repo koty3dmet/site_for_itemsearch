@@ -100,6 +100,12 @@
         .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
             border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
         }
 
         .form-row {
@@ -119,11 +125,16 @@
             cursor: pointer;
             width: 100%;
             margin-top: 20px;
-            transition: transform 0.3s;
+            transition: all 0.3s;
         }
 
         .submit-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.2);
+        }
+
+        .required {
+            color: #ef4444;
         }
 
         @media (max-width: 768px) {
@@ -146,14 +157,14 @@
         <header class="header">
             <a href="/" class="back-btn">← На главную</a>
             <h1 class="page-title">Создать объявление</h1>
-            <div></div> <!-- Пустой элемент для выравнивания -->
+            <div></div>
         </header>
 
         <div class="form-container">
-            <form id="createForm">
+            <form method="POST" action="/create">
                 <div class="form-group">
-                    <label class="form-label">Тип объявления</label>
-                    <select class="form-select" required>
+                    <label class="form-label">Тип объявления <span class="required">*</span></label>
+                    <select class="form-select" name="item_type" required>
                         <option value="">Выберите тип</option>
                         <option value="lost">Я потерял вещь</option>
                         <option value="found">Я нашел вещь</option>
@@ -162,53 +173,51 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Категория</label>
-                        <select class="form-select" required>
+                        <label class="form-label">Категория <span class="required">*</span></label>
+                        <select class="form-select" name="category" required>
                             <option value="">Выберите категорию</option>
-                            <option value="phone">Телефон</option>
-                            <option value="keys">Ключи</option>
-                            <option value="wallet">Кошелек/Документы</option>
-                            <option value="bag">Сумка/Рюкзак</option>
-                            <option value="other">Другое</option>
+                            <option value="Телефон">Телефон</option>
+                            <option value="Ключи">Ключи</option>
+                            <option value="Документы">Документы</option>
+                            <option value="Кошелек">Кошелек</option>
+                            <option value="Сумка/Рюкзак">Сумка/Рюкзак</option>
+                            <option value="Одежда">Одежда</option>
+                            <option value="Украшения">Украшения</option>
+                            <option value="Животное">Животное</option>
+                            <option value="Другое">Другое</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Город</label>
-                        <input type="text" class="form-input" placeholder="Например: Москва" required>
+                        <label class="form-label">Город <span class="required">*</span></label>
+                        <input type="text" class="form-input" name="city" placeholder="Например: Москва" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Название вещи</label>
-                    <input type="text" class="form-input" placeholder="Например: IPhone 12, черный" required>
+                    <label class="form-label">Название вещи <span class="required">*</span></label>
+                    <input type="text" class="form-input" name="title" placeholder="Например: IPhone 12, черный" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Подробное описание</label>
-                    <textarea class="form-textarea" placeholder="Опишите вещь подробно..." rows="4"></textarea>
+                    <textarea class="form-textarea" name="description" placeholder="Опишите вещь подробно: отличительные особенности, состояние и т.д."></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Дата</label>
-                        <input type="date" class="form-input" required>
+                        <label class="form-label">Дата <span class="required">*</span></label>
+                        <input type="date" class="form-input" name="date" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Место</label>
-                        <input type="text" class="form-input" placeholder="Улица, метро, учреждение">
+                        <label class="form-label">Телефон <span class="required">*</span></label>
+                        <input type="tel" class="form-input" name="phone" placeholder="+7 (___) ___-__-__" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Телефон</label>
-                        <input type="tel" class="form-input" placeholder="+7 (___) ___-__-__">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-input" placeholder="email@example.com" required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Email (необязательно)</label>
+                    <input type="email" class="form-input" name="email" placeholder="email@example.com">
                 </div>
 
                 <button type="submit" class="submit-btn">Опубликовать объявление</button>
@@ -217,11 +226,8 @@
     </div>
 
     <script>
-        document.getElementById('createForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Объявление успешно создано!');
-            window.location.href = '/';
-        });
+        // Устанавливаем сегодняшнюю дату по умолчанию
+        document.querySelector('input[name="date"]').valueAsDate = new Date();
     </script>
 </body>
 </html>
