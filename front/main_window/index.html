@@ -43,9 +43,84 @@
 
         /* ===== HEADER ===== */
         .header {
-            padding: 40px 0;
+            padding: 30px 0;
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        /* Кнопки авторизации */
+        .auth-buttons {
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-btn {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .auth-login {
+            background: var(--white);
+            color: var(--primary-blue);
+            border: 1px solid var(--light-blue);
+        }
+
+        .auth-register {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Инфо о пользователе */
+        .user-info {
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--primary-blue);
+        }
+
+        .user-uid {
+            font-size: 12px;
+            color: var(--medium-gray);
+            background: var(--white);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            padding: 8px 16px;
+            background: var(--white);
+            color: var(--primary-blue);
+            border: 1px solid var(--light-blue);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-blue);
+            color: var(--white);
         }
 
         .logo {
@@ -145,12 +220,6 @@
             margin-bottom: 10px;
         }
 
-        .btn-subtext {
-            font-size: 16px;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
         /* ===== DESCRIPTION ===== */
         .main-description {
             font-size: 18px;
@@ -177,6 +246,12 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
+            .auth-buttons, .user-info {
+                position: static;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            
             .logo h1 { font-size: 32px; }
             .main-title { font-size: 28px; }
             .buttons-container { gap: 20px; }
@@ -188,6 +263,16 @@
         @media (max-width: 480px) {
             .buttons-container { flex-direction: column; }
             .main-btn { width: 100%; max-width: 320px; }
+            
+            .auth-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -195,6 +280,21 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
+            {% if session.get('user_uid') %}
+            <div class="user-info">
+                <div>
+                    <div class="user-name">{{ session.get('user_full_name') }}</div>
+                    <div class="user-uid">UID: {{ session.get('user_uid') }}</div>
+                </div>
+                <a href="/logout" class="logout-btn">Выйти</a>
+            </div>
+            {% else %}
+            <div class="auth-buttons">
+                <a href="/login" class="auth-btn auth-login">Войти</a>
+                <a href="/register" class="auth-btn auth-register">Зарегистрироваться</a>
+            </div>
+            {% endif %}
+            
             <div class="logo">
                 <span class="logo-icon">🔍</span>
                 <h1>Найди<span class="logo-accent">Верни</span></h1>
@@ -211,13 +311,11 @@
                 <a href="/create" class="main-btn btn-lost">
                     <span class="btn-emoji">📢</span>
                     <span class="btn-text">Создать объявление</span>
-                    <span class="btn-subtext">Я что-то потерял</span>
                 </a>
                 
                 <a href="/search" class="main-btn btn-found">
                     <span class="btn-emoji">🎯</span>
                     <span class="btn-text">Найти вещь</span>
-                    <span class="btn-subtext">Я что-то нашел</span>
                 </a>
             </div>
             

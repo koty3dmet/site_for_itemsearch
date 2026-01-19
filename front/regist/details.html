@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Завершение регистрации - НайдиВерни</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --light-blue: #60a5fa;
+            --accent-blue: #0ea5e9;
+            --white: #ffffff;
+            --off-white: #f8fafc;
+            --light-gray: #e2e8f0;
+            --medium-gray: #94a3b8;
+            --dark-gray: #475569;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--off-white);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary-blue);
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .logo-accent {
+            color: var(--accent-blue);
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-container {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(145deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            border: none;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.2);
+        }
+
+        .phone-info {
+            text-align: center;
+            color: var(--medium-gray);
+            margin-bottom: 20px;
+            padding: 10px;
+            background: var(--off-white);
+            border-radius: 8px;
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .flash-error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/register" class="back-btn">← Назад</a>
+            <div class="logo">
+                <span>🔍</span>
+                <h1>Найди<span class="logo-accent">Верни</span></h1>
+            </div>
+            <h2 class="page-title">Завершение регистрации</h2>
+        </div>
+
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="form-container">
+            <div class="phone-info">
+                Телефон: {{ session['reg_phone'] }}
+            </div>
+
+            <form method="POST" action="/register/details">
+                <div class="form-group">
+                    <label class="form-label">ФИО</label>
+                    <input type="text" class="form-input" name="full_name" placeholder="Иванов Иван Иванович" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Пароль</label>
+                    <input type="password" class="form-input" name="password" placeholder="Не менее 4 символов" required minlength="4">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Подтверждение пароля</label>
+                    <input type="password" class="form-input" name="confirm_password" placeholder="Повторите пароль" required minlength="4">
+                </div>
+
+                <button type="submit" class="submit-btn">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Проверка совпадения паролей
+        const password = document.querySelector('input[name="password"]');
+        const confirmPassword = document.querySelector('input[name="confirm_password"]');
+        
+        function validatePasswords() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Пароли не совпадают");
+            } else {
+                confirmPassword.setCustomValidity("");
+            }
+        }
+        
+        password.addEventListener('change', validatePasswords);
+        confirmPassword.addEventListener('keyup', validatePasswords);
+    </script>
+</body>
+</html>s
