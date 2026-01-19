@@ -41,7 +41,10 @@
         .header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .back-btn {
@@ -63,11 +66,11 @@
         }
 
         .page-title {
-            flex: 1;
-            text-align: center;
             font-size: 28px;
             color: var(--primary-blue);
             font-weight: 700;
+            text-align: center;
+            flex-grow: 1;
         }
 
         .profile-container {
@@ -120,6 +123,7 @@
         .detail-value {
             color: var(--dark-gray);
             font-size: 16px;
+            word-break: break-all;
         }
 
         .ads-container {
@@ -154,13 +158,17 @@
             box-shadow: 0 3px 10px rgba(14, 165, 233, 0.1);
         }
 
+        .ad-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
         .ad-title {
             font-weight: 600;
             color: var(--primary-blue);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-size: 18px;
         }
 
         .ad-id {
@@ -172,9 +180,46 @@
         }
 
         .ad-info {
-            font-size: 14px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-weight: 500;
             color: var(--medium-gray);
-            margin-bottom: 5px;
+        }
+
+        .ad-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background: var(--light-blue);
+            color: white;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
         }
 
         .ad-status {
@@ -191,6 +236,11 @@
             color: #065f46;
         }
 
+        .status-closed {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
         .no-ads {
             text-align: center;
             padding: 40px 20px;
@@ -204,30 +254,68 @@
             opacity: 0.5;
         }
 
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .flash-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .flash-error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
         @media (max-width: 768px) {
             .profile-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Flash Messages -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <header class="header">
             <a href="/" class="back-btn">← На главную</a>
             <h1 class="page-title">Личный кабинет</h1>
-            <div></div>
+            <a href="/create" class="back-btn">+ Создать объявление</a>
         </header>
 
         <div class="profile-container">
             <div class="user-info-card">
                 <div class="user-avatar">
-                    {{ user.username[0] if user.username else 'U' }}
+                    {{ user.full_name[0] if user.full_name else 'U' }}
                 </div>
                 <h2 class="user-name">{{ user.full_name }}</h2>
                 
                 <div class="user-detail">
-                    <div class="detail-label">Имя пользователя</div>
+                    <div class="detail-label">Имя пользователя (логин)</div>
                     <div class="detail-value">{{ user.username }}</div>
                 </div>
                 
@@ -238,7 +326,7 @@
                 
                 <div class="user-detail">
                     <div class="detail-label">Дата регистрации</div>
-                    <div class="detail-value">{{ user.created_at.strftime('%d.%m.%Y') }}</div>
+                    <div class="detail-value">{{ user.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
                 </div>
                 
                 <div class="user-detail">
@@ -254,29 +342,53 @@
                     <div class="ads-list">
                         {% for item in items %}
                         <div class="ad-item">
-                            <div class="ad-title">
-                                {{ item.title }}
-                                <span class="ad-id">ID: {{ item.item_id }}</span>
+                            <div class="ad-header">
+                                <div class="ad-title">{{ item.title }}</div>
+                                <span class="ad-id">{{ item.item_id }}</span>
                             </div>
                             
                             <div class="ad-info">
-                                <strong>Категория:</strong> {{ item.category }}
+                                <div class="info-row">
+                                    <span class="info-label">Категория:</span>
+                                    <span>{{ item.category }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Город:</span>
+                                    <span>{{ item.city }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Тип:</span>
+                                    <span>
+                                        {% if item.item_type == 'lost' %}
+                                            Потеряно
+                                        {% else %}
+                                            Найдено
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Дата:</span>
+                                    <span>{{ item.date.strftime('%d.%m.%Y') }}</span>
+                                </div>
                             </div>
                             
-                            <div class="ad-info">
-                                <strong>Город:</strong> {{ item.city }}
-                            </div>
-                            
-                            <div class="ad-info">
-                                <strong>Тип:</strong> {{ 'Потеряно' if item.item_type == 'lost' else 'Найдено' }}
-                            </div>
-                            
-                            <div class="ad-info">
-                                <strong>Дата:</strong> {{ item.date.strftime('%d.%m.%Y') }}
+                            <div class="ad-actions">
+                                <a href="/item/{{ item.item_id }}" class="action-btn btn-view">Просмотр</a>
+                                <a href="/delete_item/{{ item.item_id }}" 
+                                   class="action-btn btn-delete"
+                                   onclick="return confirm('Вы уверены, что хотите удалить это объявление?')">
+                                    Удалить
+                                </a>
                             </div>
                             
                             <div class="ad-status status-{{ item.status }}">
-                                {{ 'Активно' if item.status == 'active' else 'Закрыто' }}
+                                {% if item.status == 'active' %}
+                                    Активно
+                                {% elif item.status == 'closed' %}
+                                    Закрыто
+                                {% else %}
+                                    {{ item.status }}
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}

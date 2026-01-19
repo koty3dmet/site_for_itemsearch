@@ -6,7 +6,6 @@
     <title>НайдиВерни - Главная</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== ТОЛЬКО СТИЛИ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ ===== */
         * {
             margin: 0;
             padding: 0;
@@ -41,7 +40,7 @@
             padding: 0 20px;
         }
 
-        /* ===== HEADER ===== */
+        /* Header */
         .header {
             padding: 30px 0;
             text-align: center;
@@ -49,7 +48,6 @@
             position: relative;
         }
 
-        /* Кнопки авторизации */
         .auth-buttons {
             position: absolute;
             top: 30px;
@@ -83,7 +81,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        /* Инфо о пользователе */
         .user-info {
             position: absolute;
             top: 30px;
@@ -96,6 +93,10 @@
         .user-name {
             font-weight: 500;
             color: var(--primary-blue);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .user-uid {
@@ -153,7 +154,38 @@
             font-weight: 300;
         }
 
-        /* ===== MAIN CONTENT ===== */
+        /* Flash messages */
+        .flash-messages {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .flash {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .flash-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .flash-error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .flash-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Main Content */
         .main-content {
             padding: 40px 0;
             text-align: center;
@@ -172,7 +204,6 @@
             animation: pulse 2s infinite;
         }
 
-        /* ===== BUTTONS ===== */
         .buttons-container {
             display: flex;
             justify-content: center;
@@ -220,7 +251,6 @@
             margin-bottom: 10px;
         }
 
-        /* ===== DESCRIPTION ===== */
         .main-description {
             font-size: 18px;
             line-height: 1.7;
@@ -233,7 +263,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* ===== ANIMATIONS ===== */
+        /* Animations */
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -244,7 +274,7 @@
             50% { transform: scale(1.1); }
         }
 
-        /* ===== RESPONSIVE ===== */
+        /* Responsive */
         @media (max-width: 768px) {
             .auth-buttons, .user-info {
                 position: static;
@@ -280,12 +310,13 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            {% if session.get('user_uid') %}
+            {% if session.get('logged_in') %}
             <div class="user-info">
                 <div>
-                    <div class="user-name">{{ session.get('user_full_name') }}</div>
-                    <div class="user-uid">UID: {{ session.get('user_uid') }}</div>
+                    <div class="user-name">{{ session.full_name }}</div>
+                    <div class="user-uid">UID: {{ session.user_uid }}</div>
                 </div>
+                <a href="/profile" class="auth-btn auth-login">Профиль</a>
                 <a href="/logout" class="logout-btn">Выйти</a>
             </div>
             {% else %}
@@ -298,10 +329,21 @@
             <div class="logo">
                 <span class="logo-icon">🔍</span>
                 <h1>Найди<span class="logo-accent">Верни</span></h1>
-                <span class="logo-icon">❤️</span>
+                <span class="logo-icon">📍</span>
             </div>
             <p class="tagline">Вернем потерянное вместе!</p>
         </header>
+
+        <!-- Flash Messages -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
 
         <!-- Main Content -->
         <main class="main-content">

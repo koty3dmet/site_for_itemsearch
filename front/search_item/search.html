@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск вещей - НайдиВерни</title>
+    <title>Поиск объявлений - НайдиВерни</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -22,6 +22,8 @@
             --light-gray: #e2e8f0;
             --medium-gray: #94a3b8;
             --dark-gray: #475569;
+            --lost-red: #dc2626;
+            --found-green: #10b981;
         }
 
         body {
@@ -41,7 +43,10 @@
         .header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .back-btn {
@@ -63,301 +68,874 @@
         }
 
         .page-title {
-            flex: 1;
-            text-align: center;
             font-size: 28px;
             color: var(--primary-blue);
             font-weight: 700;
+            text-align: center;
+            flex-grow: 1;
         }
 
+        .create-btn {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: linear-gradient(145deg, var(--primary-blue), var(--secondary-blue));
+            transition: all 0.3s;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.2);
+        }
+
+        /* Search Section */
         .search-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.1);
             margin-bottom: 40px;
         }
 
-        .search-box {
-            background: var(--white);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+        .search-title {
+            font-size: 20px;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .search-form {
-            display: flex;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
             gap: 15px;
-            margin-bottom: 25px;
+            align-items: end;
+        }
+
+        @media (max-width: 992px) {
+            .search-form {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-gray);
+            font-size: 14px;
         }
 
         .search-input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid var(--light-blue);
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--light-gray);
             border-radius: 10px;
+            font-family: 'Inter', sans-serif;
             font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .search-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            background-color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
         }
 
         .search-btn {
-            background: var(--primary-blue);
+            background: linear-gradient(145deg, var(--primary-blue), var(--secondary-blue));
             color: var(--white);
             border: none;
-            padding: 0 30px;
-            border-radius: 10px;
+            padding: 12px 25px;
+            font-size: 16px;
             font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.2);
+        }
+
+        .reset-btn {
+            background: var(--white);
+            color: var(--primary-blue);
+            border: 2px solid var(--light-blue);
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .reset-btn:hover {
+            background: var(--off-white);
+        }
+
+        /* Results Section */
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .results-title {
+            font-size: 20px;
+            color: var(--primary-blue);
+        }
+
+        .results-count {
+            color: var(--medium-gray);
+            font-size: 16px;
+        }
+
+        .sort-select {
+            padding: 8px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            background-color: var(--white);
             cursor: pointer;
         }
 
-        .filters {
+        /* Items Grid */
+        .items-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
         }
 
-        .filter-group {
+        @media (max-width: 768px) {
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .item-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
 
-        .filter-label {
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark-gray);
-        }
-
-        .filter-select {
-            padding: 12px;
-            border: 1px solid var(--light-gray);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .results-info {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--medium-gray);
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .result-card {
-            background: var(--white);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            border-left: 4px solid var(--accent-blue);
-        }
-
-        .result-card:hover {
+        .item-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
         }
 
-        .card-content {
-            padding: 20px;
+        .item-header {
+            padding: 20px 20px 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
 
-        .card-type {
+        .item-type {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .type-lost {
             background-color: #fee2e2;
-            color: #dc2626;
+            color: var(--lost-red);
         }
 
         .type-found {
-            background-color: #dbeafe;
-            color: var(--primary-blue);
+            background-color: #d1fae5;
+            color: var(--found-green);
         }
 
-        .card-title {
+        .item-date {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+
+        .item-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-title {
             font-size: 18px;
             font-weight: 600;
             color: var(--primary-blue);
             margin-bottom: 10px;
+            line-height: 1.4;
         }
 
-        .card-info {
+        .item-category {
             font-size: 14px;
             color: var(--medium-gray);
-            margin-bottom: 8px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 5px;
         }
 
-        .card-description {
-            font-size: 14px;
+        .item-description {
+            font-size: 15px;
             color: var(--dark-gray);
-            margin: 10px 0;
+            margin-bottom: 20px;
             line-height: 1.5;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .card-date {
+        .item-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .detail-label {
             font-size: 12px;
             color: var(--medium-gray);
-            margin-top: 15px;
-        }
-
-        .card-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background: var(--accent-blue);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
-            text-decoration: none;
-            text-align: center;
             font-weight: 500;
         }
 
-        .card-btn:hover {
+        .detail-value {
+            font-size: 14px;
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        .item-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--off-white);
+        }
+
+        .item-id {
+            font-size: 11px;
+            color: var(--medium-gray);
+            font-family: monospace;
+            background: var(--white);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .view-btn {
+            background: var(--light-blue);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .view-btn:hover {
             background: var(--secondary-blue);
         }
 
-        .empty-state {
+        /* No results */
+        .no-results {
             text-align: center;
             padding: 60px 20px;
-            color: var(--medium-gray);
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .empty-icon {
+        .no-results-icon {
             font-size: 64px;
             margin-bottom: 20px;
-            display: block;
             opacity: 0.5;
+            display: block;
         }
 
-        @media (max-width: 768px) {
-            .search-form {
-                flex-direction: column;
-            }
-            
-            .search-btn {
-                padding: 15px;
-            }
-            
-            .filters {
-                grid-template-columns: 1fr;
-            }
-            
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
+        .no-results h3 {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+
+        .no-results p {
+            color: var(--medium-gray);
+            margin-bottom: 25px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Filters summary */
+        .filters-summary {
+            background: var(--off-white);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-tag {
+            background: var(--white);
+            border: 1px solid var(--light-blue);
+            color: var(--primary-blue);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .remove-filter {
+            background: none;
+            border: none;
+            color: var(--medium-gray);
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+            margin-left: 3px;
+        }
+
+        .clear-all {
+            background: none;
+            border: none;
+            color: var(--error-red);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: underline;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--light-gray);
+            background: var(--white);
+            color: var(--dark-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--accent-blue);
+            color: var(--primary-blue);
+        }
+
+        .page-btn.active {
+            background: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Flash messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .flash-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .flash-error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Flash Messages -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <header class="header">
             <a href="/" class="back-btn">← На главную</a>
-            <h1 class="page-title">Поиск вещей</h1>
-            <div></div>
+            <h1 class="page-title">Поиск объявлений</h1>
+            <a href="/create" class="create-btn">+ Создать объявление</a>
         </header>
 
-        <section class="search-section">
-            <div class="search-box">
-                <form method="POST" class="search-form">
-                    <input type="text" class="search-input" name="search_query" placeholder="Что ищете? Например: телефон, ключи...">
-                    <button type="submit" class="search-btn">Найти</button>
-                </form>
-                
-                <form method="POST" class="filters">
-                    <div class="filter-group">
-                        <label class="filter-label">Категория</label>
-                        <select class="filter-select" name="category">
+        <!-- Search Form -->
+        <div class="search-section">
+            <h2 class="search-title">Найдите потерянные или найденные вещи</h2>
+            
+            <form method="POST" action="/search" id="searchForm">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label class="form-label">Ключевые слова</label>
+                        <input type="text" 
+                               class="search-input" 
+                               name="search_query" 
+                               id="searchQuery"
+                               placeholder="Телефон, ключи, документы..." 
+                               value="{{ search_query if search_query }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Тип</label>
+                        <select class="search-select" name="item_type" id="itemType">
+                            <option value="all">Все типы</option>
+                            <option value="lost" {% if request.form.get('item_type') == 'lost' %}selected{% endif %}>Потеряно</option>
+                            <option value="found" {% if request.form.get('item_type') == 'found' %}selected{% endif %}>Найдено</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Категория</label>
+                        <select class="search-select" name="category" id="category">
                             <option value="all">Все категории</option>
                             {% for category in categories %}
-                            <option value="{{ category }}">{{ category }}</option>
+                                <option value="{{ category }}" 
+                                        {% if request.form.get('category') == category %}selected{% endif %}>
+                                    {{ category }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">Город</label>
-                        <select class="filter-select" name="city">
+
+                    <div class="form-group">
+                        <label class="form-label">Город</label>
+                        <select class="search-select" name="city" id="city">
                             <option value="all">Все города</option>
                             {% for city in cities %}
-                            <option value="{{ city }}">{{ city }}</option>
+                                <option value="{{ city }}"
+                                        {% if request.form.get('city') == city %}selected{% endif %}>
+                                    {{ city }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
-                </form>
-            </div>
 
-            <div class="results-info">
-                {% if items %}
-                    Найдено объявлений: {{ items|length }}
+                    <div class="form-group">
+                        <button type="submit" class="search-btn">
+                            🔍 Найти
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Active Filters Summary -->
+        {% if search_query or request.form.get('item_type') != 'all' or request.form.get('category') != 'all' or request.form.get('city') != 'all' %}
+        <div class="filters-summary">
+            <div class="active-filters">
+                <span style="color: var(--medium-gray); font-size: 14px;">Активные фильтры:</span>
+                
+                {% if search_query %}
+                <span class="filter-tag">
+                    Поиск: "{{ search_query }}"
+                    <button type="button" class="remove-filter" onclick="clearFilter('search_query')">×</button>
+                </span>
+                {% endif %}
+                
+                {% if request.form.get('item_type') and request.form.get('item_type') != 'all' %}
+                <span class="filter-tag">
+                    Тип: {{ 'Потеряно' if request.form.get('item_type') == 'lost' else 'Найдено' }}
+                    <button type="button" class="remove-filter" onclick="clearFilter('item_type')">×</button>
+                </span>
+                {% endif %}
+                
+                {% if request.form.get('category') and request.form.get('category') != 'all' %}
+                <span class="filter-tag">
+                    Категория: {{ request.form.get('category') }}
+                    <button type="button" class="remove-filter" onclick="clearFilter('category')">×</button>
+                </span>
+                {% endif %}
+                
+                {% if request.form.get('city') and request.form.get('city') != 'all' %}
+                <span class="filter-tag">
+                    Город: {{ request.form.get('city') }}
+                    <button type="button" class="remove-filter" onclick="clearFilter('city')">×</button>
+                </span>
                 {% endif %}
             </div>
+            
+            <button type="button" class="clear-all" onclick="clearAllFilters()">
+                Очистить все
+            </button>
+        </div>
+        {% endif %}
 
-            <div class="results-grid">
-                {% if items %}
+        <!-- Results Section -->
+        <div class="results-section">
+            <div class="results-header">
+                <h2 class="results-title">Результаты поиска</h2>
+                <div class="results-count">
+                    {% if items %}
+                        Найдено объявлений: {{ items|length }}
+                    {% else %}
+                        Объявления не найдены
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if items %}
+                <div class="items-grid">
                     {% for item in items %}
-                    <div class="result-card">
-                        <div class="card-content">
-                            <div class="card-type {{ 'type-lost' if item.item_type == 'lost' else 'type-found' }}">
-                                {{ 'Потеряно' if item.item_type == 'lost' else 'Найдено' }}
+                    <div class="item-card">
+                        <div class="item-header">
+                            <span class="item-type type-{{ item.item_type }}">
+                                {% if item.item_type == 'lost' %}
+                                    ПОТЕРЯНО
+                                {% else %}
+                                    НАЙДЕНО
+                                {% endif %}
+                            </span>
+                            <span class="item-date">{{ item.date.strftime('%d.%m.%Y') }}</span>
+                        </div>
+                        
+                        <div class="item-body">
+                            <h3 class="item-title">{{ item.title }}</h3>
+                            
+                            <div class="item-category">
+                                <span>📁</span>
+                                <span>{{ item.category }}</span>
                             </div>
                             
-                            <h3 class="card-title">{{ item.title }}</h3>
-                            
-                            <div class="card-info">
-                                <span>📁</span> {{ item.category }}
-                            </div>
-                            
-                            <div class="card-info">
-                                <span>📍</span> {{ item.city }}
-                            </div>
-                            
-                            {% if item.description %}
-                            <p class="card-description">{{ item.description[:150] }}{% if item.description|length > 150 %}...{% endif %}</p>
-                            {% endif %}
-                            
-                            <div class="card-info">
-                                <span>📅</span> {{ item.date.strftime('%d.%m.%Y') }}
-                            </div>
-                            
-                            <p class="card-date">
-                                Опубликовано: {{ item.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            <p class="item-description">
+                                {% if item.description %}
+                                    {{ item.description[:200] }}{% if item.description|length > 200 %}...{% endif %}
+                                {% else %}
+                                    Описание отсутствует
+                                {% endif %}
                             </p>
                             
-                            <a href="/contact/{{ item.id }}" class="card-btn">
-                                Показать контакты
-                            </a>
+                            <div class="item-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">📍 Город</span>
+                                    <span class="detail-value">{{ item.city }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">🏷️ Категория</span>
+                                    <span class="detail-value">{{ item.category }}</span>
+                                </div>
+                                {% if item.location %}
+                                <div class="detail-item">
+                                    <span class="detail-label">🗺️ Место</span>
+                                    <span class="detail-value">{{ item.location[:30] }}{% if item.location|length > 30 %}...{% endif %}</span>
+                                </div>
+                                {% endif %}
+                                <div class="detail-item">
+                                    <span class="detail-label">📅 Дата</span>
+                                    <span class="detail-value">{{ item.date.strftime('%d.%m.%Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="item-footer">
+                            <span class="item-id">ID: {{ item.item_id }}</span>
+                            <a href="/item/{{ item.item_id }}" class="view-btn">Подробнее →</a>
                         </div>
                     </div>
                     {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <span class="empty-icon">🔍</span>
-                        <h3>Объявления не найдены</h3>
-                        <p>Попробуйте изменить параметры поиска или создайте первое объявление</p>
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <span class="no-results-icon">🔍</span>
+                    <h3>Объявления не найдены</h3>
+                    <p>
+                        Попробуйте изменить параметры поиска или создать новое объявление, 
+                        если вы что-то потеряли или нашли.
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                        <button type="button" class="reset-btn" onclick="clearAllFilters()">
+                            Сбросить фильтры
+                        </button>
+                        <a href="/create" class="search-btn" style="display: inline-block;">
+                            Создать объявление
+                        </a>
                     </div>
-                {% endif %}
-            </div>
-        </section>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
     <script>
-        // Автоматическая отправка формы при изменении фильтров
-        document.querySelectorAll('.filter-select').forEach(select => {
+        // Form submission
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            // Show loading state
+            const submitBtn = this.querySelector('.search-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '🔍 Поиск...';
+            submitBtn.disabled = true;
+            
+            // Reset after 3 seconds (in case of error)
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        });
+        
+        // Clear specific filter
+        function clearFilter(filterName) {
+            const form = document.getElementById('searchForm');
+            
+            switch(filterName) {
+                case 'search_query':
+                    document.getElementById('searchQuery').value = '';
+                    break;
+                case 'item_type':
+                    document.getElementById('itemType').value = 'all';
+                    break;
+                case 'category':
+                    document.getElementById('category').value = 'all';
+                    break;
+                case 'city':
+                    document.getElementById('city').value = 'all';
+                    break;
+            }
+            
+            form.submit();
+        }
+        
+        // Clear all filters
+        function clearAllFilters() {
+            document.getElementById('searchQuery').value = '';
+            document.getElementById('itemType').value = 'all';
+            document.getElementById('category').value = 'all';
+            document.getElementById('city').value = 'all';
+            document.getElementById('searchForm').submit();
+        }
+        
+        // Auto-submit when filters change (optional)
+        const selectElements = document.querySelectorAll('.search-select');
+        selectElements.forEach(select => {
             select.addEventListener('change', function() {
-                this.closest('form').submit();
+                // Auto-submit only if there's no text in search field
+                const searchQuery = document.getElementById('searchQuery').value;
+                if (!searchQuery.trim()) {
+                    document.getElementById('searchForm').submit();
+                }
             });
         });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + F focuses search input
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchQuery').focus();
+            }
+            
+            // Enter submits form when search input is focused
+            if (e.key === 'Enter' && document.activeElement.id === 'searchQuery') {
+                document.getElementById('searchForm').submit();
+            }
+        });
+        
+        // Highlight search terms in results (client-side)
+        function highlightSearchTerms() {
+            const searchQuery = "{{ search_query if search_query else '' }}";
+            if (!searchQuery.trim()) return;
+            
+            const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term.length > 2);
+            if (searchTerms.length === 0) return;
+            
+            const itemCards = document.querySelectorAll('.item-card');
+            itemCards.forEach(card => {
+                const title = card.querySelector('.item-title');
+                const description = card.querySelector('.item-description');
+                
+                if (title) {
+                    let titleText = title.textContent;
+                    searchTerms.forEach(term => {
+                        const regex = new RegExp(`(${term})`, 'gi');
+                        titleText = titleText.replace(regex, '<mark>$1</mark>');
+                    });
+                    title.innerHTML = titleText;
+                }
+                
+                if (description) {
+                    let descText = description.textContent;
+                    searchTerms.forEach(term => {
+                        const regex = new RegExp(`(${term})`, 'gi');
+                        descText = descText.replace(regex, '<mark>$1</mark>');
+                    });
+                    description.innerHTML = descText;
+                }
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus search input if it's empty
+            const searchInput = document.getElementById('searchQuery');
+            if (!searchInput.value.trim()) {
+                searchInput.focus();
+            }
+            
+            // Highlight search terms
+            highlightSearchTerms();
+            
+            // Add animation to cards
+            const cards = document.querySelectorAll('.item-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.05}s`;
+                card.style.opacity = '0';
+                card.style.animation = `fadeIn 0.5s ease forwards`;
+            });
+            
+            // Add CSS for fadeIn animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+        
+        // Save search preferences to localStorage
+        function saveSearchPreferences() {
+            const preferences = {
+                search_query: document.getElementById('searchQuery').value,
+                item_type: document.getElementById('itemType').value,
+                category: document.getElementById('category').value,
+                city: document.getElementById('city').value,
+                timestamp: new Date().getTime()
+            };
+            localStorage.setItem('search_preferences', JSON.stringify(preferences));
+        }
+        
+        // Load saved preferences
+        function loadSearchPreferences() {
+            const saved = localStorage.getItem('search_preferences');
+            if (saved) {
+                const preferences = JSON.parse(saved);
+                
+                // Only load if saved less than 1 hour ago
+                const oneHour = 60 * 60 * 1000;
+                if (new Date().getTime() - preferences.timestamp < oneHour) {
+                    document.getElementById('searchQuery').value = preferences.search_query || '';
+                    document.getElementById('itemType').value = preferences.item_type || 'all';
+                    document.getElementById('category').value = preferences.category || 'all';
+                    document.getElementById('city').value = preferences.city || 'all';
+                }
+            }
+        }
+        
+        // Save on input changes
+        const formInputs = document.querySelectorAll('#searchForm input, #searchForm select');
+        formInputs.forEach(input => {
+            input.addEventListener('change', saveSearchPreferences);
+            input.addEventListener('input', saveSearchPreferences);
+        });
+        
+        // Load preferences on page load
+        window.addEventListener('load', loadSearchPreferences);
     </script>
 </body>
 </html>
