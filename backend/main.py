@@ -9,7 +9,7 @@ import hashlib
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///lost_and_found.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
+app.config['SECRET_KEY'] = 'test-secret-key-123'
 app.template_folder = '../front'
 
 db = SQLAlchemy(app)
@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(10), unique=True, nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)  # Изменено с phone на email
+    email = db.Column(db.String(100), unique=True, nullable=False)
     full_name = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -35,7 +35,7 @@ class Item(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
     date = db.Column(db.Date, nullable=False)
-    contact_email = db.Column(db.String(100), nullable=True)  # Email для контактов в объявлении
+    contact_email = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='active')
 
@@ -49,18 +49,25 @@ def gen_item_ID():
     characters = string.ascii_uppercase + string.digits
     return ''.join(random.choices(characters, k=8))
 
-# Генерация кода подтверждения (4 цифры)
+# Генерация кода подтверждения (6 цифр)
 def gen_confirm_code():
-    return str(random.randint(1000, 9999))
+    return str(random.randint(100000, 999999))
 
 # Хэширование пароля
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# Простая проверка email
-def is_valid_email(email):
-    return '@' in email and '.' in email
+# Простая функция отправки (только вывод в консоль)
+def send_confirmation_email(email, code):
+    print("=" * 60)
+    print(f"📧 ДЕМО-РЕЖИМ: Код подтверждения для {email}")
+    print(f"🔢 КОД: {code}")
+    print("=" * 60)
+    return True  # Всегда возвращаем True для тестирования
 
+@app.route('/test')
+def test():
+    return "Тест работает!"
 # Главная страница
 @app.route('/')
 def index():
@@ -69,11 +76,13 @@ def index():
 # Страница регистрации - шаг 1: email
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    print("DEBUG: /register вызван")
+    
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
+        print(f"DEBUG: Получен email: {email}")
         
-        # Базовая проверка email
-        if not email or not is_valid_email(email):
+        if not email or '@' not in email:
             flash('Введите корректный email адрес', 'error')
             return redirect('/register')
         
@@ -82,11 +91,12 @@ def register():
         session['reg_email'] = email
         session['confirm_code'] = confirm_code
         
-        # В ДЕМО-РЕЖИМЕ: показываем код на следующей странице
-        # В реальном приложении здесь должна быть отправка email
-        print(f"ДЕМО: Код подтверждения для {email}: {confirm_code}")
+        print(f"DEBUG: Установлены сессии: email={email}, code={confirm_code}")
         
-        # Перенаправляем на страницу верификации
+        # Отправляем код на email (демо-режим)
+        send_confirmation_email(email, confirm_code)
+        flash('Код подтверждения отправлен (см. консоль сервера)', 'success')
+        
         return redirect('/register/verify')
     
     return render_template('regist/register.html')
@@ -94,14 +104,16 @@ def register():
 # Страница верификации кода
 @app.route('/register/verify', methods=['GET', 'POST'])
 def register_verify():
+    print("DEBUG: /register/verify вызван")
+    print(f"DEBUG: Сессия содержит: {dict(session)}")
+    
     if 'reg_email' not in session:
+        flash('Сначала введите email', 'error')
         return redirect('/register')
     
-    # Получаем код для отображения (в демо-режиме)
-    confirm_code = session.get('confirm_code', 'XXXX')
-    
     if request.method == 'POST':
-        entered_code = request.form.get('confirm_code')
+        entered_code = request.form.get('confirm_code', '').strip()
+        print(f"DEBUG: Введен код: {entered_code}, ожидается: {session.get('confirm_code')}")
         
         if entered_code == session.get('confirm_code'):
             session['email_verified'] = True
@@ -109,22 +121,22 @@ def register_verify():
         else:
             flash('Неверный код подтверждения', 'error')
     
-    return render_template('regist/verify.html', 
-                         email=session.get('reg_email'),
-                         confirm_code=confirm_code)
+    return render_template('regist/verify.html', email=session.get('reg_email'))
 
 # Страница регистрации - шаг 2: данные пользователя
 @app.route('/register/details', methods=['GET', 'POST'])
 def register_details():
+    print("DEBUG: /register/details вызван")
+    
     if 'reg_email' not in session or not session.get('email_verified'):
+        flash('Сначала подтвердите email', 'error')
         return redirect('/register')
     
     if request.method == 'POST':
-        full_name = request.form.get('full_name')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
+        full_name = request.form.get('full_name', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
         
-        # Проверки
         if not full_name:
             flash('Введите ФИО', 'error')
             return redirect('/register/details')
@@ -154,21 +166,29 @@ def register_details():
             password=hashed_password
         )
         
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # Авторизуем пользователя
-        session['user_uid'] = uid
-        session['user_full_name'] = full_name
-        session['email'] = session['reg_email']
-        
-        # Очищаем временные данные регистрации
-        session.pop('reg_email', None)
-        session.pop('confirm_code', None)
-        session.pop('email_verified', None)
-        
-        flash(f'Регистрация успешна! Ваш UID: {uid}', 'success')
-        return redirect('/')
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Авторизуем пользователя
+            session['user_uid'] = uid
+            session['user_full_name'] = full_name
+            session['email'] = session['reg_email']
+            session['logged_in'] = True
+            
+            # Очищаем временные данные регистрации
+            session.pop('reg_email', None)
+            session.pop('confirm_code', None)
+            session.pop('email_verified', None)
+            
+            flash(f'✅ Регистрация успешна! Ваш UID: {uid}', 'success')
+            return redirect('/')
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Ошибка при регистрации: {e}")
+            flash('Ошибка при регистрации. Попробуйте позже.', 'error')
+            return redirect('/register')
     
     return render_template('regist/details.html')
 
@@ -177,7 +197,7 @@ def register_details():
 def login():
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
-        password = request.form.get('password')
+        password = request.form.get('password', '')
         
         user = User.query.filter_by(email=email).first()
         
@@ -185,6 +205,7 @@ def login():
             session['user_uid'] = user.uid
             session['user_full_name'] = user.full_name
             session['email'] = user.email
+            session['logged_in'] = True
             return redirect('/')
         else:
             flash('Неверный email или пароль', 'error')
@@ -211,7 +232,7 @@ def create():
         title = request.form.get('title')
         description = request.form.get('description')
         date_str = request.form.get('date')
-        contact_email = request.form.get('contact_email', '')  # Email для контактов
+        contact_email = request.form.get('contact_email', '')
         
         # Конвертируем дату
         try:
@@ -232,7 +253,7 @@ def create():
             title=title,
             description=description,
             date=date,
-            contact_email=contact_email or session.get('email'),  # Используем email пользователя если не указан
+            contact_email=contact_email or session.get('email'),
             created_at=datetime.utcnow()
         )
         
@@ -247,7 +268,7 @@ def create():
         
         db.session.commit()
         
-        flash(f'Объявление создано! ID: {item_id}', 'success')
+        flash(f'✅ Объявление создано! ID: {item_id}', 'success')
         return redirect('/search')
     
     return render_template('create_ad/create.html', user_email=session.get('email'))
@@ -328,5 +349,10 @@ if __name__ == '__main__':
     # Создаем таблицы в БД
     with app.app_context():
         db.create_all()
+        print("✅ База данных создана")
+    
+    print("=" * 60)
+    print("🚀 Сервер запущен! http://localhost:5000")
+    print("=" * 60)
     
     app.run(debug=True, host='0.0.0.0', port=5000)
