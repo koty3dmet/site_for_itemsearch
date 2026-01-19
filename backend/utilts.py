@@ -7,7 +7,3 @@ def gen_UID():
         s+=str(random.choice(random.choice([num, sym])))
         
     return s
-
-for _ in range(10):
-    a = gen_UID()
-    print(a)

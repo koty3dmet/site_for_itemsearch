@@ -1,0 +1,20 @@
+<!-- ВМЕСТО ЭТОГО -->
+<div class="contact-item">
+    <div class="contact-icon">📞</div>
+    <div class="contact-text">{{ item.phone }}</div>
+</div>
+
+{% if item.email %}
+<div class="contact-item">
+    <div class="contact-icon">✉️</div>
+    <div class="contact-text">{{ item.email }}</div>
+</div>
+{% endif %}
+
+<!-- НА ЭТО -->
+{% if item.contact_email %}
+<div class="contact-item">
+    <div class="contact-icon">✉️</div>
+    <div class="contact-text">{{ item.contact_email }}</div>
+</div>
+{% endif %}

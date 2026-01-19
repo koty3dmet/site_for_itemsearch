@@ -117,21 +117,6 @@
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
         }
 
-        .phone-input {
-            display: flex;
-            gap: 10px;
-        }
-
-        .phone-prefix {
-            padding: 15px;
-            background: var(--off-white);
-            border: 1px solid var(--light-gray);
-            border-radius: 10px;
-            min-width: 70px;
-            text-align: center;
-            font-weight: 500;
-        }
-
         .submit-btn {
             background: linear-gradient(145deg, var(--primary-blue), var(--secondary-blue));
             color: var(--white);
@@ -210,14 +195,14 @@
         <div class="form-container">
             <form method="POST" action="/register">
                 <div class="form-group">
-                    <label class="form-label">Номер телефона</label>
-                    <div class="phone-input">
-                        <div class="phone-prefix">+7</div>
-                        <input type="tel" class="form-input" name="phone" placeholder="900 123-45-67" required pattern="[0-9]{10}" title="Введите 10 цифр номера">
-                    </div>
+                    <label class="form-label">Email адрес</label>
+                    <input type="email" class="form-input" name="email" placeholder="example@mail.ru" required>
+                    <small style="color: var(--medium-gray); font-size: 14px; display: block; margin-top: 5px;">
+                        На этот email будет отправлен код подтверждения
+                    </small>
                 </div>
 
-                <button type="submit" class="submit-btn">Получить SMS код</button>
+                <button type="submit" class="submit-btn">Получить код подтверждения</button>
             </form>
 
             <p class="info-text">
@@ -225,22 +210,5 @@
             </p>
         </div>
     </div>
-
-    <script>
-        // Форматирование номера телефона
-        const phoneInput = document.querySelector('input[name="phone"]');
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 10) value = value.substring(0, 10);
-            
-            let formatted = '';
-            if (value.length > 0) formatted = value.substring(0, 3);
-            if (value.length > 3) formatted += ' ' + value.substring(3, 6);
-            if (value.length > 6) formatted += '-' + value.substring(6, 8);
-            if (value.length > 8) formatted += '-' + value.substring(8, 10);
-            
-            e.target.value = formatted;
-        });
-    </script>
 </body>
 </html>

@@ -18,29 +18,28 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.String(10), unique=True, nullable=False)
-    phone = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)  # Изменено с phone на email
     full_name = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    advertisements = db.Column(db.Text, default='')  # ID объявлений через запятую
+    advertisements = db.Column(db.Text, default='')
 
-# Модель объявления (обновленная)
+# Модель объявления
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    item_id = db.Column(db.String(10), unique=True, nullable=False)  # Публичный ID
-    user_uid = db.Column(db.String(10), nullable=False)  # UID пользователя
+    item_id = db.Column(db.String(10), unique=True, nullable=False)
+    user_uid = db.Column(db.String(10), nullable=False)
     item_type = db.Column(db.String(20), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     city = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
     date = db.Column(db.Date, nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
-    email = db.Column(db.String(100), nullable=True)
+    contact_email = db.Column(db.String(100), nullable=True)  # Email для контактов в объявлении
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='active')
 
-# Генерация UID (6 символов: буквы и цифры)
+# Генерация UID
 def gen_UID():
     characters = string.ascii_uppercase + string.digits
     return ''.join(random.choices(characters, k=6))
@@ -50,64 +49,74 @@ def gen_item_ID():
     characters = string.ascii_uppercase + string.digits
     return ''.join(random.choices(characters, k=8))
 
-# Генерация SMS кода (4 цифры)
-def gen_sms_code():
+# Генерация кода подтверждения (4 цифры)
+def gen_confirm_code():
     return str(random.randint(1000, 9999))
 
 # Хэширование пароля
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+# Простая проверка email
+def is_valid_email(email):
+    return '@' in email and '.' in email
+
 # Главная страница
 @app.route('/')
 def index():
-    user_phone = session.get('phone', None)
-    return render_template('main_window/index.html', user_phone=user_phone)
+    return render_template('main_window/index.html')
 
-# Страница регистрации - шаг 1: телефон
+# Страница регистрации - шаг 1: email
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        phone = request.form.get('phone')
+        email = request.form.get('email', '').strip().lower()
         
-        # Проверка формата телефона (простая проверка)
-        if not phone or len(phone) < 10:
-            flash('Введите корректный номер телефона', 'error')
+        # Базовая проверка email
+        if not email or not is_valid_email(email):
+            flash('Введите корректный email адрес', 'error')
             return redirect('/register')
         
-        # Генерируем SMS код (в реальном приложении здесь был бы вызов SMS API)
-        sms_code = gen_sms_code()
-        session['reg_phone'] = phone
-        session['sms_code'] = sms_code
+        # Генерируем код подтверждения
+        confirm_code = gen_confirm_code()
+        session['reg_email'] = email
+        session['confirm_code'] = confirm_code
         
-        # В реальном приложении: отправить SMS
-        print(f"SMS код для {phone}: {sms_code}")  # Для тестирования
+        # В ДЕМО-РЕЖИМЕ: показываем код на следующей странице
+        # В реальном приложении здесь должна быть отправка email
+        print(f"ДЕМО: Код подтверждения для {email}: {confirm_code}")
         
+        # Перенаправляем на страницу верификации
         return redirect('/register/verify')
     
     return render_template('regist/register.html')
 
-# Страница верификации SMS кода
+# Страница верификации кода
 @app.route('/register/verify', methods=['GET', 'POST'])
 def register_verify():
-    if 'reg_phone' not in session:
+    if 'reg_email' not in session:
         return redirect('/register')
     
+    # Получаем код для отображения (в демо-режиме)
+    confirm_code = session.get('confirm_code', 'XXXX')
+    
     if request.method == 'POST':
-        sms_code = request.form.get('sms_code')
+        entered_code = request.form.get('confirm_code')
         
-        if sms_code == session.get('sms_code'):
-            session['sms_verified'] = True
+        if entered_code == session.get('confirm_code'):
+            session['email_verified'] = True
             return redirect('/register/details')
         else:
             flash('Неверный код подтверждения', 'error')
     
-    return render_template('regist/verify.html', phone=session.get('reg_phone'))
+    return render_template('regist/verify.html', 
+                         email=session.get('reg_email'),
+                         confirm_code=confirm_code)
 
 # Страница регистрации - шаг 2: данные пользователя
 @app.route('/register/details', methods=['GET', 'POST'])
 def register_details():
-    if 'reg_phone' not in session or not session.get('sms_verified'):
+    if 'reg_email' not in session or not session.get('email_verified'):
         return redirect('/register')
     
     if request.method == 'POST':
@@ -128,10 +137,10 @@ def register_details():
             flash('Пароли не совпадают', 'error')
             return redirect('/register/details')
         
-        # Проверяем, не зарегистрирован ли уже телефон
-        existing_user = User.query.filter_by(phone=session['reg_phone']).first()
+        # Проверяем, не зарегистрирован ли уже email
+        existing_user = User.query.filter_by(email=session['reg_email']).first()
         if existing_user:
-            flash('Этот номер телефона уже зарегистрирован', 'error')
+            flash('Этот email уже зарегистрирован', 'error')
             return redirect('/login')
         
         # Создаем нового пользователя
@@ -140,7 +149,7 @@ def register_details():
         
         new_user = User(
             uid=uid,
-            phone=session['reg_phone'],
+            email=session['reg_email'],
             full_name=full_name,
             password=hashed_password
         )
@@ -151,14 +160,14 @@ def register_details():
         # Авторизуем пользователя
         session['user_uid'] = uid
         session['user_full_name'] = full_name
-        session['phone'] = session['reg_phone']
+        session['email'] = session['reg_email']
         
         # Очищаем временные данные регистрации
-        session.pop('reg_phone', None)
-        session.pop('sms_code', None)
-        session.pop('sms_verified', None)
+        session.pop('reg_email', None)
+        session.pop('confirm_code', None)
+        session.pop('email_verified', None)
         
-        flash('Регистрация успешна! Ваш UID: ' + uid, 'success')
+        flash(f'Регистрация успешна! Ваш UID: {uid}', 'success')
         return redirect('/')
     
     return render_template('regist/details.html')
@@ -167,18 +176,18 @@ def register_details():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        phone = request.form.get('phone')
+        email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
         
-        user = User.query.filter_by(phone=phone).first()
+        user = User.query.filter_by(email=email).first()
         
         if user and user.password == hash_password(password):
             session['user_uid'] = user.uid
             session['user_full_name'] = user.full_name
-            session['phone'] = user.phone
+            session['email'] = user.email
             return redirect('/')
         else:
-            flash('Неверный номер телефона или пароль', 'error')
+            flash('Неверный email или пароль', 'error')
     
     return render_template('regist/login.html')
 
@@ -188,7 +197,7 @@ def logout():
     session.clear()
     return redirect('/')
 
-# Создание объявления (обновленная версия с привязкой к пользователю)
+# Создание объявления
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     if 'user_uid' not in session:
@@ -196,15 +205,13 @@ def create():
         return redirect('/login')
     
     if request.method == 'POST':
-        # Получаем данные из формы
         item_type = request.form.get('item_type')
         category = request.form.get('category')
         city = request.form.get('city')
         title = request.form.get('title')
         description = request.form.get('description')
         date_str = request.form.get('date')
-        phone = request.form.get('phone')
-        email = request.form.get('email')
+        contact_email = request.form.get('contact_email', '')  # Email для контактов
         
         # Конвертируем дату
         try:
@@ -225,8 +232,8 @@ def create():
             title=title,
             description=description,
             date=date,
-            phone=phone,
-            email=email
+            contact_email=contact_email or session.get('email'),  # Используем email пользователя если не указан
+            created_at=datetime.utcnow()
         )
         
         db.session.add(new_item)
@@ -243,7 +250,7 @@ def create():
         flash(f'Объявление создано! ID: {item_id}', 'success')
         return redirect('/search')
     
-    return render_template('create_ad/create.html', user_phone=session.get('phone'))
+    return render_template('create_ad/create.html', user_email=session.get('email'))
 
 # Поиск объявлений
 @app.route('/search', methods=['GET', 'POST'])

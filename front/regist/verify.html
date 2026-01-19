@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подтверждение телефона - НайдиВерни</title>
+    <title>Подтверждение email - НайдиВерни</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -84,10 +84,44 @@
             text-align: center;
         }
 
-        .phone-info {
+        .email-info {
             text-align: center;
             color: var(--medium-gray);
             margin-bottom: 30px;
+        }
+
+        /* Блок с демо-кодом */
+        .demo-code {
+            background: #f0f9ff;
+            border: 2px solid var(--light-blue);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .demo-title {
+            color: var(--primary-blue);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .confirm-code-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            letter-spacing: 5px;
+            margin: 10px 0;
+            padding: 15px;
+            background: var(--white);
+            border-radius: 8px;
+            border: 2px dashed var(--light-blue);
+        }
+
+        .demo-note {
+            font-size: 14px;
+            color: var(--medium-gray);
+            font-style: italic;
         }
 
         .form-container {
@@ -108,14 +142,14 @@
             color: var(--dark-gray);
         }
 
-        .sms-inputs {
+        .code-inputs {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
         }
 
-        .sms-input {
+        .code-input {
             width: 60px;
             height: 70px;
             border: 2px solid var(--light-gray);
@@ -125,7 +159,7 @@
             font-weight: bold;
         }
 
-        .sms-input:focus {
+        .code-input:focus {
             outline: none;
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
@@ -185,8 +219,15 @@
                 <span>🔍</span>
                 <h1>Найди<span class="logo-accent">Верни</span></h1>
             </div>
-            <h2 class="page-title">Подтверждение телефона</h2>
-            <p class="phone-info">Код отправлен на номер: {{ phone }}</p>
+            <h2 class="page-title">Подтверждение email</h2>
+            <p class="email-info">Код отправлен на: {{ email }}</p>
+        </div>
+
+        <!-- Демо-блок с кодом -->
+        <div class="demo-code">
+            <div class="demo-title">📧 Демо-режим (для тестирования)</div>
+            <div class="confirm-code-display">{{ confirm_code }}</div>
+            <p class="demo-note">В реальном приложении этот код придет на email</p>
         </div>
 
         <div class="flash-messages">
@@ -202,9 +243,9 @@
         <div class="form-container">
             <form method="POST" action="/register/verify">
                 <div class="form-group">
-                    <label class="form-label">Введите 4-значный код из SMS</label>
-                    <div class="sms-inputs">
-                        <input type="text" class="sms-input" name="sms_code" maxlength="4" pattern="[0-9]{4}" required>
+                    <label class="form-label">Введите 4-значный код из email</label>
+                    <div class="code-inputs">
+                        <input type="text" class="code-input" name="confirm_code" maxlength="4" pattern="[0-9]{4}" required>
                     </div>
                 </div>
 
@@ -212,20 +253,23 @@
             </form>
 
             <p class="resend-link">
-                Не получили код? <a href="#">Отправить повторно</a>
+                Не получили код? <a href="/register">Ввести email повторно</a>
             </p>
         </div>
     </div>
 
     <script>
-        // Автоматическое перемещение фокуса при вводе SMS кода
-        const smsInput = document.querySelector('.sms-input');
+        // Автоматическое перемещение фокуса при вводе кода
+        const codeInput = document.querySelector('.code-input');
         
-        smsInput.addEventListener('input', function(e) {
+        codeInput.addEventListener('input', function(e) {
             if (this.value.length === 4) {
                 this.form.submit();
             }
         });
+        
+        // Автофокус на поле ввода
+        codeInput.focus();
     </script>
 </body>
 </html>
