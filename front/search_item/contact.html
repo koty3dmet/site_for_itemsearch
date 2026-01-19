@@ -657,12 +657,6 @@
                     🔐 Войти, чтобы создать объявление
                 </a>
             {% endif %}
-            
-            {% if session.get('logged_in') and session.get('user_id') != item.user_id %}
-            <button class="action-btn btn-primary" onclick="sendMessage()">
-                💬 Написать сообщение
-            </button>
-            {% endif %}
         </div>
     </div>
 
