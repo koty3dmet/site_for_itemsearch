@@ -9,7 +9,7 @@ import os
 # Добавляем backend в путь
 sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
 
-from main import app, init_db
+from backend.main import app, init_db
 
 if __name__ == '__main__':
     # Инициализируем БД
@@ -20,4 +20,4 @@ if __name__ == '__main__':
     print("="*60 + "\n")
     
     # Запускаем приложение
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=1, host='0.0.0.0', port=5000)
