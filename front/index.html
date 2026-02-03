@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>НайдиВерни - Главная</title>
+    <title>НайдиВерни - Вернем потерянное вместе!</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* ===== VARIABLES ===== */
         :root {
             --primary-blue: #1e40af;
             --secondary-blue: #3b82f6;
@@ -22,40 +17,65 @@
             --light-gray: #e2e8f0;
             --medium-gray: #94a3b8;
             --dark-gray: #475569;
-            --shadow: rgba(30, 64, 175, 0.1);
+            --success-green: #10b981;
+            --error-red: #dc2626;
+            --warning-orange: #f59e0b;
+            --lost-red: #dc2626;
+            --found-green: #10b981;
         }
-
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--off-white);
             color: var(--dark-gray);
             line-height: 1.6;
-            min-height: 100vh;
         }
-
+        
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-
-        /* Header */
+        
+        /* ===== HEADER ===== */
         .header {
             padding: 30px 0;
             text-align: center;
-            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 40px;
             position: relative;
+            overflow: hidden;
         }
-
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path fill="rgba(255,255,255,0.1)" d="M0,0 Q250,50 500,0 T1000,0 V100 H0 Z"/></svg>');
+            background-size: cover;
+        }
+        
         .auth-buttons {
             position: absolute;
-            top: 30px;
+            top: 20px;
             right: 20px;
             display: flex;
             gap: 10px;
+            z-index: 10;
         }
-
+        
         .auth-btn {
             text-decoration: none;
             padding: 10px 20px;
@@ -64,243 +84,448 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-
+        
         .auth-login {
             background: var(--white);
             color: var(--primary-blue);
-            border: 1px solid var(--light-blue);
         }
-
+        
         .auth-register {
-            background: var(--primary-blue);
+            background: rgba(255, 255, 255, 0.2);
             color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-
+        
         .auth-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-
+        
         .user-info {
             position: absolute;
-            top: 30px;
+            top: 20px;
             right: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
+            z-index: 10;
         }
-
+        
         .user-name {
             font-weight: 500;
-            color: var(--primary-blue);
+            color: var(--white);
             max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-
-        .user-uid {
-            font-size: 12px;
-            color: var(--medium-gray);
-            background: var(--white);
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid var(--light-gray);
-        }
-
+        
         .logout-btn {
             text-decoration: none;
             padding: 8px 16px;
-            background: var(--white);
-            color: var(--primary-blue);
-            border: 1px solid var(--light-blue);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             font-size: 14px;
             font-weight: 500;
         }
-
+        
         .logout-btn:hover {
-            background: var(--primary-blue);
-            color: var(--white);
+            background: rgba(255, 255, 255, 0.3);
         }
-
+        
         .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            position: relative;
+            z-index: 5;
+            margin-bottom: 20px;
         }
-
-        .logo-icon {
-            font-size: 32px;
-            animation: float 3s ease-in-out infinite;
-        }
-
+        
         .logo h1 {
             font-size: 42px;
             font-weight: 800;
-            color: var(--primary-blue);
-            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-
+        
         .logo-accent {
             color: var(--accent-blue);
         }
-
+        
         .tagline {
             font-size: 18px;
-            color: var(--medium-gray);
+            opacity: 0.9;
             font-weight: 300;
+            margin-bottom: 30px;
         }
-
-        /* Flash messages */
-        .flash-messages {
-            max-width: 600px;
-            margin: 0 auto 30px;
+        
+        /* ===== STATISTICS ===== */
+        .stats-section {
+            margin-bottom: 50px;
         }
-
-        .flash {
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+        
+        .stats-title {
             text-align: center;
-        }
-
-        .flash-success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .flash-error {
-            background-color: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-
-        .flash-info {
-            background-color: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-        }
-
-        /* Main Content */
-        .main-content {
-            padding: 40px 0;
-            text-align: center;
-        }
-
-        .main-title {
-            font-size: 36px;
+            font-size: 28px;
             color: var(--primary-blue);
-            margin-bottom: 60px;
+            margin-bottom: 30px;
             font-weight: 700;
         }
-
-        .emoji-decor {
-            font-size: 28px;
-            display: inline-block;
-            animation: pulse 2s infinite;
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
-
-        .buttons-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 60px;
-            flex-wrap: wrap;
+        
+        .stat-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s;
+            border-top: 5px solid var(--accent-blue);
         }
-
-        .main-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 300px;
-            height: 300px;
-            border-radius: 20px;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px var(--shadow);
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
         }
-
-        .main-btn:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+        
+        .stat-card.found {
+            border-top-color: var(--found-green);
         }
-
-        .btn-lost {
-            background: linear-gradient(145deg, var(--primary-blue), var(--secondary-blue));
+        
+        .stat-card.users {
+            border-top-color: var(--primary-blue);
         }
-
-        .btn-found {
-            background: linear-gradient(145deg, var(--accent-blue), var(--light-blue));
+        
+        .stat-card.items {
+            border-top-color: var(--warning-orange);
         }
-
-        .btn-emoji {
-            font-size: 64px;
+        
+        .stat-icon {
+            font-size: 48px;
             margin-bottom: 20px;
             display: block;
         }
-
-        .btn-text {
-            font-size: 32px;
+        
+        .stat-value {
+            font-size: 36px;
             font-weight: 700;
+            color: var(--dark-gray);
             margin-bottom: 10px;
         }
-
-        .main-description {
-            font-size: 18px;
-            line-height: 1.7;
+        
+        .stat-label {
+            font-size: 16px;
+            color: var(--medium-gray);
+            font-weight: 500;
+        }
+        
+        .stat-updated {
+            text-align: center;
+            color: var(--medium-gray);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        /* ===== CATEGORIES ===== */
+        .categories-section {
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .category-tag {
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .category-tag:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-name {
+            font-weight: 500;
             color: var(--dark-gray);
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 25px;
+        }
+        
+        .category-count {
+            background: var(--light-blue);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* ===== RECENT ITEMS ===== */
+        .recent-items {
+            margin-bottom: 50px;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .item-card {
+            background: var(--white);
             border-radius: 15px;
-            background-color: var(--white);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
-
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
         }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        
+        .item-header {
+            padding: 20px;
+            background: var(--off-white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
         }
-
-        /* Responsive */
+        
+        .item-type {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .type-lost {
+            background-color: #fee2e2;
+            color: var(--lost-red);
+        }
+        
+        .type-found {
+            background-color: #d1fae5;
+            color: var(--found-green);
+        }
+        
+        .item-date {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+        
+        .item-body {
+            padding: 20px;
+        }
+        
+        .item-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--medium-gray);
+        }
+        
+        .item-description {
+            font-size: 14px;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .view-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--light-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .view-btn:hover {
+            background: var(--secondary-blue);
+        }
+        
+        /* ===== CALL TO ACTION ===== */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .cta-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .cta-text {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .cta-btn-primary {
+            background: white;
+            color: var(--primary-blue);
+        }
+        
+        .cta-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark-gray);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .copyright {
+            opacity: 0.7;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-link:hover {
+            opacity: 1;
+        }
+        
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
+            .header {
+                padding: 20px 0;
+            }
+            
+            .logo h1 {
+                font-size: 32px;
+            }
+            
             .auth-buttons, .user-info {
                 position: static;
                 justify-content: center;
                 margin-bottom: 20px;
             }
             
-            .logo h1 { font-size: 32px; }
-            .main-title { font-size: 28px; }
-            .buttons-container { gap: 20px; }
-            .main-btn { width: 280px; height: 280px; }
-            .btn-emoji { font-size: 56px; }
-            .btn-text { font-size: 28px; }
-        }
-
-        @media (max-width: 480px) {
-            .buttons-container { flex-direction: column; }
-            .main-btn { width: 100%; max-width: 320px; }
-            
-            .auth-buttons {
-                flex-direction: column;
-                align-items: center;
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
             
-            .user-info {
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
                 flex-direction: column;
+            }
+            
+            .cta-btn {
+                width: 100%;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .cta-section {
+                padding: 30px 20px;
+            }
+            
+            .category-tag {
+                flex-direction: column;
+                gap: 10px;
                 text-align: center;
             }
         }
@@ -310,74 +535,178 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            {% if session.get('logged_in') %}
+            {% if session.get('user_uid') %}
             <div class="user-info">
-                <div>
-                    <div class="user-name">{{ session.full_name }}</div>
-                    <div class="user-uid">UID: {{ session.user_uid }}</div>
-                </div>
+                <div class="user-name">{{ session.full_name }}</div>
                 <a href="/profile" class="auth-btn auth-login">Профиль</a>
                 <a href="/logout" class="logout-btn">Выйти</a>
             </div>
             {% else %}
             <div class="auth-buttons">
                 <a href="/login" class="auth-btn auth-login">Войти</a>
-                <a href="/register" class="auth-btn auth-register">Зарегистрироваться</a>
+                <a href="/register" class="auth-btn auth-register">Регистрация</a>
             </div>
             {% endif %}
             
             <div class="logo">
-                <span class="logo-icon">🔍</span>
                 <h1>Найди<span class="logo-accent">Верни</span></h1>
-                <span class="logo-icon">📍</span>
+                <p class="tagline">Вернем потерянное вместе!</p>
             </div>
-            <p class="tagline">Вернем потерянное вместе!</p>
         </header>
 
-        <!-- Flash Messages -->
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash flash-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <h2 class="main-title">Что вы хотите сделать? <span class="emoji-decor">🤔</span></h2>
-            
-            <div class="buttons-container">
-                <a href="/create" class="main-btn btn-lost">
-                    <span class="btn-emoji">📢</span>
-                    <span class="btn-text">Создать объявление</span>
-                </a>
+        <!-- Statistics -->
+        <section class="stats-section">
+            <h2 class="stats-title">Наша статистика</h2>
+            <div class="stats-grid">
+                <div class="stat-card users">
+                    <span class="stat-icon">👥</span>
+                    <div class="stat-value">{{ stats.total_users }}</div>
+                    <div class="stat-label">Пользователей</div>
+                </div>
                 
-                <a href="/search" class="main-btn btn-found">
-                    <span class="btn-emoji">🎯</span>
-                    <span class="btn-text">Найти вещь</span>
+                <div class="stat-card">
+                    <span class="stat-icon">📢</span>
+                    <div class="stat-value">{{ stats.active_items }}</div>
+                    <div class="stat-label">Активных объявлений</div>
+                </div>
+                
+                <div class="stat-card found">
+                    <span class="stat-icon">✅</span>
+                    <div class="stat-value">{{ stats.found_items }}</div>
+                    <div class="stat-label">Найдено вещей</div>
+                </div>
+                
+                <div class="stat-card items">
+                    <span class="stat-icon">📈</span>
+                    <div class="stat-value">{{ stats.total_items }}</div>
+                    <div class="stat-label">Всего объявлений</div>
+                </div>
+            </div>
+            <p class="stat-updated">Обновлено: {{ stats.last_updated.strftime('%d.%m.%Y %H:%M') }}</p>
+        </section>
+
+        <!-- Categories -->
+        <section class="categories-section">
+            <h2 class="section-title">Популярные категории</h2>
+            <div class="categories-grid">
+                {% for category, count in categories %}
+                <div class="category-tag">
+                    <span class="category-name">{{ category }}</span>
+                    <span class="category-count">{{ count }}</span>
+                </div>
+                {% else %}
+                <p style="color: var(--medium-gray); text-align: center; grid-column: 1/-1;">
+                    Категории пока не добавлены
+                </p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Recent Items -->
+        <section class="recent-items">
+            <h2 class="section-title">Последние объявления</h2>
+            <div class="items-grid">
+                {% for item in recent_items %}
+                <div class="item-card">
+                    <div class="item-header">
+                        <span class="item-type type-{{ item.item_type }}">
+                            {% if item.item_type == 'lost' %}
+                                ПОТЕРЯНО
+                            {% else %}
+                                НАЙДЕНО
+                            {% endif %}
+                        </span>
+                        <span class="item-date">{{ item.created_at.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                    <div class="item-body">
+                        <h3 class="item-title">{{ item.title }}</h3>
+                        <div class="item-meta">
+                            <span>{{ item.city }}</span>
+                            <span>{{ item.category }}</span>
+                        </div>
+                        <p class="item-description">
+                            {% if item.description %}
+                                {{ item.description[:100] }}{% if item.description|length > 100 %}...{% endif %}
+                            {% else %}
+                                <em>Описание отсутствует</em>
+                            {% endif %}
+                        </p>
+                        <a href="/item/{{ item.item_id }}" class="view-btn">Подробнее →</a>
+                    </div>
+                </div>
+                {% else %}
+                <p style="color: var(--medium-gray); text-align: center; grid-column: 1/-1;">
+                    Объявлений пока нет
+                </p>
+                {% endfor %}
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/search" class="view-btn" style="padding: 12px 30px; font-size: 16px;">
+                    🔍 Все объявления
                 </a>
             </div>
-            
-            <p class="main-description">
-                Наш сервис помогает соединить потерянные вещи <span class="emoji-decor">⌛</span> 
-                с их владельцами <span class="emoji-decor">😊</span>. 
-                Просто, быстро, без комиссии!
+        </section>
+
+        <!-- Call to Action -->
+        <section class="cta-section">
+            <h2 class="cta-title">Присоединяйтесь к нашему сообществу!</h2>
+            <p class="cta-text">
+                Каждый день мы помогаем людям находить потерянные вещи и возвращать их владельцам. 
+                Ваша помощь может сделать чей-то день лучше!
             </p>
-        </main>
+            <div class="cta-buttons">
+                {% if session.get('logged_in') %}
+                <a href="/create" class="cta-btn cta-btn-primary">📢 Создать объявление</a>
+                <a href="/search" class="cta-btn cta-btn-secondary">🔍 Найти вещь</a>
+                {% else %}
+                <a href="/register" class="cta-btn cta-btn-primary">🚀 Начать сейчас</a>
+                <a href="/login" class="cta-btn cta-btn-secondary">🔐 Войти в аккаунт</a>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="copyright">
+                    © 2024 НайдиВерни. Все права защищены.
+                </div>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Главная</a>
+                    <a href="/search" class="footer-link">Поиск</a>
+                    <a href="/about" class="footer-link">О проекте</a>
+                    <a href="/contact" class="footer-link">Контакты</a>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <script>
-        document.querySelectorAll('.main-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-10px) scale(1.02)';
+        // Анимация статистики при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Плавное появление карточек статистики
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
             });
             
-            btn.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
+            // Обновление статистики каждые 5 минут (опционально)
+            setInterval(() => {
+                fetch('/admin/update_stats')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Обновляем значения на странице
+                        document.querySelector('.stat-value').innerHTML = data.total_users;
+                    })
+                    .catch(error => console.error('Error updating stats:', error));
+            }, 5 * 60 * 1000);
         });
     </script>
 </body>

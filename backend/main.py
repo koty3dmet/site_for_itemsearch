@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from models import db, User, Item
+from Utilts import *
 from datetime import datetime
 import os
 import random
@@ -42,7 +43,42 @@ def verify_password(stored_hash, password):
 # Главная страница
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # 1. Получаем или создаем запись статистики
+    stats_obj = PlatformStats.get_current_stats()
+    
+    # 2. ОБНОВЛЯЕМ статистику на основе текущих данных в БД
+    stats_obj.total_users = User.query.count()
+    stats_obj.total_items = Item.query.count()
+    stats_obj.active_items = Item.query.filter_by(status='active').count()
+    stats_obj.lost_items = Item.query.filter_by(item_type='lost').count()
+    stats_obj.found_items_reported = Item.query.filter_by(item_type='found').count()
+    stats_obj.last_updated = datetime.utcnow()
+    
+    # 3. Сохраняем обновленную статистику в БД
+    db.session.commit()
+    
+    # 4. Получаем популярные категории
+    categories_data = db.session.query(
+        Item.category, 
+        db.func.count(Item.id)
+    ).group_by(Item.category).order_by(db.func.count(Item.id).desc()).limit(10).all()
+    
+    # 5. Получаем последние объявления
+    recent_items = Item.query.filter_by(status='active').order_by(
+        Item.created_at.desc()
+    ).limit(6).all()
+    
+    # 6. Получаем данные пользователя
+    user = None
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+    
+    # 7. Передаем stats_obj напрямую в шаблон (это объект PlatformStats)
+    return render_template('index.html', 
+                         user=user,
+                         stats=stats_obj,  # Передаем объект, а не словарь
+                         categories=categories_data,
+                         recent_items=recent_items)
 
 # Регистрация
 @app.route('/register', methods=['GET', 'POST'])
@@ -154,7 +190,15 @@ def profile():
     # Получаем объявления пользователя
     user_items = Item.query.filter_by(user_id=user.id).order_by(Item.created_at.desc()).all()
     
-    return render_template('register/profile.html', user=user, items=user_items)
+    # Получаем статистику
+    total_user_items = len(user_items)
+    active_user_items = sum(1 for item in user_items if item.status == 'active')
+    
+    return render_template('register/profile.html', 
+                         user=user, 
+                         items=user_items,
+                         total_items=total_user_items,
+                         active_items=active_user_items)
 
 # Создание объявления
 @app.route('/create', methods=['GET', 'POST'])
@@ -194,7 +238,7 @@ def create():
         try:
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
         except:
-            date = datetime.now().date()
+            date = datetime.now().date()+3
         
         # Создание объявления
         item_id = generate_item_id()
@@ -309,6 +353,39 @@ def delete_item(item_id):
     
     return redirect('/profile')
 
+# Отметить как найденное
+@app.route('/found_item/<string:item_id>')
+def found_item(item_id):
+    if 'user_id' not in session:
+        flash('Необходимо войти в систему', 'error')
+        return redirect('/login')
+    
+    item = Item.query.filter_by(item_id=item_id).first_or_404()
+    
+    # Проверка прав
+    if item.user_id != session['user_id']:
+        flash('У вас нет прав на изменение этого объявления', 'error')
+        return redirect(f'/item/{item_id}')
+    
+    try:
+        # 1. Получаем статистику платформы
+        stats = PlatformStats.get_current_stats()
+        
+        # 2. Увеличиваем счетчик найденных вещей через твой метод
+        stats.increment_found_items(db.session)
+        
+        # 3. Удаляем объявление
+        db.session.delete(item)
+        db.session.commit()
+        
+        flash(f'✅ Объявление отмечено как найденное! Всего найдено вещей: {stats.found_items}', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Ошибка: {e}")
+        flash('Ошибка при отметке объявления', 'error')
+    
+    return redirect('/profile')
 # ===== ИНИЦИАЛИЗАЦИЯ =====
 
 def init_db():
@@ -340,6 +417,15 @@ def init_db():
             db.session.add(test_user)
             db.session.commit()
             print("✅ Создан тестовый пользователь: admin / admin123")
+
+@app.after_request
+def add_header(response):
+    # Предотвращаем кэширование для динамических страниц
+    if 'Cache-Control' not in response.headers:
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 if __name__ == '__main__':
     init_db()

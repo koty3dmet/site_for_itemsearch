@@ -347,6 +347,15 @@
             background: #fee2e2;
         }
 
+        .btn-success {
+            background: var(--white);
+            color: #10b981;
+            border-color: rgb(0, 121, 40);
+        }
+
+        .btn-success:hover {
+            background: var(--off-white);
+        }
         /* Owner Actions (only for item owner) */
         .owner-actions {
             background: #fef3c7;
@@ -627,15 +636,19 @@
                         <a href="/create?edit={{ item.item_id }}" class="action-btn btn-secondary">
                             ✏️ Редактировать
                         </a>
+                        
                         <a href="/delete_item/{{ item.item_id }}" 
-                           class="action-btn btn-danger"
-                           onclick="return confirm('Вы уверены, что хотите удалить это объявление?')">
+                        class="action-btn btn-danger"
+                        onclick="return confirm('Вы уверены, что хотите удалить это объявление?')">
                             🗑️ Удалить
                         </a>
+                        
                         {% if item.status == 'active' %}
-                        <button class="action-btn btn-secondary" onclick="markAsClosed()">
-                            ✅ Отметить как найденное/возвращённое
-                        </button>
+                        <a href="/found_item/{{ item.item_id }}" 
+                        class="action-btn btn-success"
+                        onclick="return confirm('Вы уверены, что хотите отметить объявление как найденное?\n')">
+                            ✅ Отметить как найденное
+                        </a>
                         {% endif %}
                     </div>
                 </div>
